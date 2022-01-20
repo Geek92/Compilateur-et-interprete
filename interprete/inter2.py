@@ -25,13 +25,30 @@ def interpreter_expression(dico):
     
     #on suppose que l'on souhaite déclarer une variable
     if dico["type"] == "VariableDeclaration":
-        dico = dico["declarations"][0]
-        nomVariable = dico["id"]["name"]
-        if type(dico["init"]) == type(dict()): # on déclare une variable avec une valeur
-            dico = dico["init"]["extra"]["raw"]
-            return nomVariable + " " + dico
-        else:#on déclare une variable sans lui associer de valeur
-            return nomVariable
+        if len(dico["declarations"]) == 1:
+            dico = dico["declarations"][0]
+            nomVariable = dico["id"]["name"]
+            if type(dico["init"]) == type(dict()): # on déclare une variable avec une valeur
+                dico = dico["init"]["extra"]["raw"]
+                return nomVariable + " " + dico
+            else:#on déclare une variable sans lui associer de valeur
+                return nomVariable
+        
+        else:
+            chaineFinal = " "
+            for i in dico["declarations"]:
+                nomVariable = i["id"]["name"]
+                if type(i["init"]) == type(dict()):
+                    if "extra" in i["init"].keys():
+                        valVariable = i["init"]["extra"]["raw"]
+                        chaineFinal += nomVariable + " " + valVariable + "\n"
+                    else:# i["init"]["type"] = NullLiteral
+                        chaineFinal += nomVariable + " " + "null" + " " + "\n"
+                else:
+                    chaineFinal += nomVariable + "\n"
+            return chaineFinal
+                
+
        
     
     
