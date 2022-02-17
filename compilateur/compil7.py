@@ -235,8 +235,6 @@ def compil_json(file):# fonction a appeller pour compiler un fichier json
                                     
                             elif test["type"] == "BinaryExpression":# if (x == 1), on supposera que l'on aura jamais if (1 == x) ou if (1 == 1)
                                 
-                                print("dans un if, on est dans un binaryexpression")
-                                
                                 left = test["left"]["name"]
                                 operator = test["operator"]
                                 if "value" in test["right"]:
@@ -248,7 +246,7 @@ def compil_json(file):# fonction a appeller pour compiler un fichier json
                                 nomParam = tableVar.index(left)
                                 left = "globals[" + str(nomParam) + "]"
                                 
-                                consequent = j["consequent"]# erreur ici
+                                consequent = j["consequent"]
                                 
                                 for k in range(len(consequent["body"])):                      
                                     body = consequent["body"][k]
