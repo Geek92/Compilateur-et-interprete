@@ -1,61 +1,58 @@
 import json 
 import inter2
+from interprete_declarations import interprete_declarations
+import interprete_expression 
 
-def evaluer_boucle(dico):
-    """ Evaluation d'une boucle while
-    Cette fonction prends en parametre un dictionaire representant l'AST d'une boucle while et renvoie le resultat de son evaluation.
-    
-    Parameters
-    ----------
-    dico : un dictionaire
-    
-    Returns
-    -------
-    resultat de l'evaluation de la condition et des differentes expressions contenues dans la boucle
-    """
-   
-   #si on a une expression on l'evalue 
-    if dico["type"] == "VariableDeclaration":
-       print(inter2.interpreter_expression(dico))
-    
-    #si on a une boucle while on l'evalue et on affiche le resultat
-    elif dico["type"] == "WhileStatement":
-        test = dico['test']
-        body = dico['body']['body']
-        condition = "while statement condition: "+test['left']['name'] +" "+ test['operator'] +" "+ str(test['right']['value']) #on recupere et on affiche la condition de la boucle
-        print(condition)
-        variable_condition = 0
-        while variable_condition < test['right']['value'] - 1:
-            for number in range(len(body)):
-                if body[number]["expression"]["type"] == "UpdateExpression":  #si on a une operation d'incrementation
-                    variable_condition = inter2.interpreter_expression(body[number],variable_condition)
-            else:
-                    #si on a une instruction d'affichage de la forme print(variable) ou print(String) 
-                    # en supposant que notre chaine  de caracteres contienne au mois 2 mots a afficher
-                    result = inter2.interpreter_expression(body[number])  
-                    final_result = result if result.count(" ") > 1 else result+": "+str(variable_condition)
-                    print(final_result)
-                    
-                                 
-#on ouvre le fichier json et on recupere le contenu de notre programme
-file_path = "/Users/patrickfrank/Desktop/matieres deuxieme semestre/compilation de logiciels/interprete/compact json files/03-while-compact.json"
-with open(file_path,"r") as jsonFile:
-    Tree = json.load(jsonFile)
-    programme = Tree["program"]["body"]
-    valeur_variable= 0
-    declaration = list()
-    
-    #on recupere le 
-    for i in range(len(programme)):
-        if programme[i]["type"] == "VariableDeclaration": #si on a une declaration de variable
-            declaration = programme[i]["declarations"]
-            for j in range(len(declaration)):
-                if "init" in declaration[j].keys():  #si la variable est initialisée
-                    valeur_variable= declaration[j]["init"]["value"]
-                    evaluer_boucle(programme[i])
-                    
-        elif programme[i]["type"] == "WhileStatement":  #si on a une boucle
-            evaluer_boucle(programme[i])
+def evaluer_boucle(liste):
+    #on utilise un dictionaire pour stocker les variables declarees ainsi que leurs valeurs 
+    variableDeclarations = {}
+    for dico in liste:
+        #on parcours l'AST si on a une declaration de varialbe on recupere son nom et sa valeur
+        #qu'on va stocker dans variableDeclarations
+        if dico["type"] == "VariableDeclaration":
+                result = interprete_declarations(dico)
+                for key in result.keys():
+                    variableDeclarations[key] = result[key]
+        
+        #si on a une boucle while
+        elif dico["type"] == "WhileStatement":
+            body = dico["body"]["body"]
+            test = dico["test"]
+            #on recuperer la valeur de la variable a tester
+            #variableDeclarations[test["left"]["name"]]
+            if test["type"] == "BinaryExpression":
+                while result := interprete_expression.interpreter_expression(test,variableDeclarations[test["left"]["name"]]) != interprete_expression.BADVALUE:
+                    for number in range(0,len(body)):
+                        dico = body[number]
+                        if dico["type"] == "ExpressionStatement" and dico["expression"]["type"] == "UpdateExpression":
+                            variableDeclarations[test["left"]["name"]] = interprete_expression.interpreter_expression(dico,variableDeclarations[test["left"]["name"]])
+                        elif dico["type"] == "ExpressionStatement" and dico["expression"]["callee"]["name"] == "print":
+                            print_function(dico,variableDeclarations)
+                        
+                     
+
+def print_function(dico1,dico2):
+    if dico1["type"] == "ExpressionStatement" and dico1["expression"]["type"] == "CallExpression":
+        if dico1["expression"]["callee"]["name"] == "print" and dico1["expression"]["arguments"][0]["name"] in dico2.keys():
+            print(dico2[dico1["expression"]["arguments"][0]["name"]])
+        else:
+            print(dico1["expression"]["callee"]["value"])
+            
+
+'''def test(jsonFile):
+    try:
+        jsonFile = open(jsonFile,"r")
+        tree = json.load(jsonFile)
+        body = tree["program"]["body"]
+        evaluer_boucle(body)
+            #print(body[number])
+            #print("\n")
+        jsonFile.close()
+    except OSError as error:
+        print(error)
+
+test("/Users/patrickfrank/Desktop/matieres deuxieme semestre/compilation de logiciels/interprete/compact json files/03-while-compact.json")
+ '''   
     
             
             
