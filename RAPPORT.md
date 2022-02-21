@@ -20,3 +20,10 @@ Interprete
 On a testé avec 01-expressions.js, 02-declarations.js et 03-while.js
 Le code qui nous importe est dans interprete_while.py et dans
 inter2.py
+
+
+Compilateur
+
+Le premier fichier js est compiler grace à compil.py
+compil7.py s'occupe des 5 fichiers suivants.
+Seul les 6 premiers fichier js sont compilés pour l'instant.
