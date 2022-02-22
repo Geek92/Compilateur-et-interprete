@@ -18,8 +18,8 @@ Il faut ensuite appeler la fonction afficher_declaration
 Interprete
 
 On a testé avec 01-expressions.js, 02-declarations.js et 03-while.js
-Le code qui nous importe est dans interprete_while.py et dans
-inter2.py
+Le code qui nous importe est dans interprete_expression.py dans
+interprete_declaration.py et dans interprete_while.py
 
 
 Compilateur
